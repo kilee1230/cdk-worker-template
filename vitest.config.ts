@@ -21,5 +21,9 @@ export default defineConfig({
     },
     include: ["**/*.test.ts"],
     exclude: ["node_modules", "cdk.out", "lib"],
+    // Snapshot configuration
+    resolveSnapshotPath: (testPath, snapExtension) => {
+      return testPath.replace(/\.test\.ts$/, `.test.ts${snapExtension}`);
+    },
   },
 });

@@ -18,6 +18,7 @@
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
     "test:lambda": "tsx scripts/test-lambda-local.ts",
+    "test:update-snapshots": "vitest run -u",
     "lint": "eslint . --ext .ts",
     "lint:fix": "eslint . --ext .ts --fix"
   },

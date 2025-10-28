@@ -4,6 +4,45 @@ import { Template } from "aws-cdk-lib/assertions";
 import { WorkerStack } from "../infra/stacks/worker-stack.js";
 
 describe("WorkerStack", () => {
+  describe("Snapshot Tests", () => {
+    it("should match the CloudFormation template snapshot", () => {
+      const app = new cdk.App();
+      const stack = new WorkerStack(app, "TestStack");
+      const template = Template.fromStack(stack);
+
+      // Snapshot the entire CloudFormation template
+      expect(template.toJSON()).toMatchSnapshot();
+    });
+
+    it("should match the resource count snapshot", () => {
+      const app = new cdk.App();
+      const stack = new WorkerStack(app, "TestStack");
+      const template = Template.fromStack(stack);
+
+      const resources = template.toJSON().Resources;
+      const resourceTypes = Object.entries(resources).reduce(
+        (acc, [, resource]) => {
+          const type = (resource as any).Type;
+          acc[type] = (acc[type] || 0) + 1;
+          return acc;
+        },
+        {} as Record<string, number>
+      );
+
+      // Snapshot resource types and counts
+      expect(resourceTypes).toMatchSnapshot();
+    });
+
+    it("should match the outputs snapshot", () => {
+      const app = new cdk.App();
+      const stack = new WorkerStack(app, "TestStack");
+      const template = Template.fromStack(stack);
+
+      // Snapshot all stack outputs
+      expect(template.toJSON().Outputs).toMatchSnapshot();
+    });
+  });
+
   it("should create SNS topic with correct properties", () => {
     const app = new cdk.App();
     const stack = new WorkerStack(app, "TestStack");

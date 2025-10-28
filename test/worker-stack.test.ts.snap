@@ -1,0 +1,341 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`WorkerStack > Snapshot Tests > should match the CloudFormation template snapshot 1`] = `
+{
+  "Outputs": {
+    "DLQUrl": {
+      "Description": "Dead Letter Queue URL",
+      "Value": {
+        "Ref": "WorkerDLQ878BA572",
+      },
+    },
+    "FunctionName": {
+      "Description": "Lambda Function Name",
+      "Value": {
+        "Ref": "WorkerFunctionACE6A4B0",
+      },
+    },
+    "QueueUrl": {
+      "Description": "SQS Queue URL",
+      "Value": {
+        "Ref": "WorkerQueueE3D427EB",
+      },
+    },
+    "TopicArn": {
+      "Description": "SNS Topic ARN",
+      "Value": {
+        "Ref": "WorkerTopic7BD0C79A",
+      },
+    },
+  },
+  "Parameters": {
+    "BootstrapVersion": {
+      "Default": "/cdk-bootstrap/hnb659fds/version",
+      "Description": "Version of the CDK Bootstrap resources in this environment, automatically retrieved from SSM Parameter Store. [cdk:skip]",
+      "Type": "AWS::SSM::Parameter::Value<String>",
+    },
+  },
+  "Resources": {
+    "WorkerDLQ878BA572": {
+      "DeletionPolicy": "Delete",
+      "Properties": {
+        "MessageRetentionPeriod": 1209600,
+        "QueueName": "worker-dlq",
+      },
+      "Type": "AWS::SQS::Queue",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "WorkerFunctionACE6A4B0": {
+      "DependsOn": [
+        "WorkerFunctionServiceRoleDefaultPolicy07D8276A",
+        "WorkerFunctionServiceRole38D8F738",
+      ],
+      "Properties": {
+        "Code": {
+          "S3Bucket": {
+            "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
+          },
+          "S3Key": "70cd151727c65e630a809803ca9062bdcce31c041b5873c0340bf9ef096dea36.zip",
+        },
+        "Environment": {
+          "Variables": {
+            "DLQ_URL": {
+              "Ref": "WorkerDLQ878BA572",
+            },
+            "ENVIRONMENT": "production",
+            "LOG_LEVEL": "info",
+            "QUEUE_URL": {
+              "Ref": "WorkerQueueE3D427EB",
+            },
+            "TOPIC_ARN": {
+              "Ref": "WorkerTopic7BD0C79A",
+            },
+          },
+        },
+        "Handler": "index.handler",
+        "MemorySize": 256,
+        "Role": {
+          "Fn::GetAtt": [
+            "WorkerFunctionServiceRole38D8F738",
+            "Arn",
+          ],
+        },
+        "Runtime": "nodejs20.x",
+        "Timeout": 30,
+      },
+      "Type": "AWS::Lambda::Function",
+    },
+    "WorkerFunctionServiceRole38D8F738": {
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "lambda.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "ManagedPolicyArns": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition",
+                },
+                ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
+              ],
+            ],
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Role",
+    },
+    "WorkerFunctionServiceRoleDefaultPolicy07D8276A": {
+      "Properties": {
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": [
+                "sqs:ReceiveMessage",
+                "sqs:ChangeMessageVisibility",
+                "sqs:GetQueueUrl",
+                "sqs:DeleteMessage",
+                "sqs:GetQueueAttributes",
+              ],
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::GetAtt": [
+                  "WorkerQueueE3D427EB",
+                  "Arn",
+                ],
+              },
+            },
+            {
+              "Action": "sns:Publish",
+              "Effect": "Allow",
+              "Resource": {
+                "Ref": "WorkerTopic7BD0C79A",
+              },
+            },
+            {
+              "Action": [
+                "sqs:SendMessage",
+                "sqs:GetQueueAttributes",
+                "sqs:GetQueueUrl",
+              ],
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::GetAtt": [
+                  "WorkerDLQ878BA572",
+                  "Arn",
+                ],
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "PolicyName": "WorkerFunctionServiceRoleDefaultPolicy07D8276A",
+        "Roles": [
+          {
+            "Ref": "WorkerFunctionServiceRole38D8F738",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Policy",
+    },
+    "WorkerFunctionSqsEventSourceTestStackWorkerQueue9B1F4B3E70766AEE": {
+      "Properties": {
+        "BatchSize": 10,
+        "EventSourceArn": {
+          "Fn::GetAtt": [
+            "WorkerQueueE3D427EB",
+            "Arn",
+          ],
+        },
+        "FunctionName": {
+          "Ref": "WorkerFunctionACE6A4B0",
+        },
+        "FunctionResponseTypes": [
+          "ReportBatchItemFailures",
+        ],
+        "MaximumBatchingWindowInSeconds": 5,
+      },
+      "Type": "AWS::Lambda::EventSourceMapping",
+    },
+    "WorkerQueueE3D427EB": {
+      "DeletionPolicy": "Delete",
+      "Properties": {
+        "QueueName": "worker-queue",
+        "ReceiveMessageWaitTimeSeconds": 20,
+        "RedrivePolicy": {
+          "deadLetterTargetArn": {
+            "Fn::GetAtt": [
+              "WorkerDLQ878BA572",
+              "Arn",
+            ],
+          },
+          "maxReceiveCount": 3,
+        },
+        "VisibilityTimeout": 300,
+      },
+      "Type": "AWS::SQS::Queue",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "WorkerQueuePolicy0AF57CF8": {
+      "Properties": {
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sqs:SendMessage",
+              "Condition": {
+                "ArnEquals": {
+                  "aws:SourceArn": {
+                    "Ref": "WorkerTopic7BD0C79A",
+                  },
+                },
+              },
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "sns.amazonaws.com",
+              },
+              "Resource": {
+                "Fn::GetAtt": [
+                  "WorkerQueueE3D427EB",
+                  "Arn",
+                ],
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "Queues": [
+          {
+            "Ref": "WorkerQueueE3D427EB",
+          },
+        ],
+      },
+      "Type": "AWS::SQS::QueuePolicy",
+    },
+    "WorkerQueueTestStackWorkerTopic1FC7471E615F6138": {
+      "DependsOn": [
+        "WorkerQueuePolicy0AF57CF8",
+      ],
+      "Properties": {
+        "Endpoint": {
+          "Fn::GetAtt": [
+            "WorkerQueueE3D427EB",
+            "Arn",
+          ],
+        },
+        "Protocol": "sqs",
+        "TopicArn": {
+          "Ref": "WorkerTopic7BD0C79A",
+        },
+      },
+      "Type": "AWS::SNS::Subscription",
+    },
+    "WorkerTopic7BD0C79A": {
+      "Properties": {
+        "DisplayName": "Worker Topic",
+        "TopicName": "worker-topic",
+      },
+      "Type": "AWS::SNS::Topic",
+    },
+  },
+  "Rules": {
+    "CheckBootstrapVersion": {
+      "Assertions": [
+        {
+          "Assert": {
+            "Fn::Not": [
+              {
+                "Fn::Contains": [
+                  [
+                    "1",
+                    "2",
+                    "3",
+                    "4",
+                    "5",
+                  ],
+                  {
+                    "Ref": "BootstrapVersion",
+                  },
+                ],
+              },
+            ],
+          },
+          "AssertDescription": "CDK bootstrap stack version 6 required. Please run 'cdk bootstrap' with a recent version of the CDK CLI.",
+        },
+      ],
+    },
+  },
+}
+`;
+
+exports[`WorkerStack > Snapshot Tests > should match the outputs snapshot 1`] = `
+{
+  "DLQUrl": {
+    "Description": "Dead Letter Queue URL",
+    "Value": {
+      "Ref": "WorkerDLQ878BA572",
+    },
+  },
+  "FunctionName": {
+    "Description": "Lambda Function Name",
+    "Value": {
+      "Ref": "WorkerFunctionACE6A4B0",
+    },
+  },
+  "QueueUrl": {
+    "Description": "SQS Queue URL",
+    "Value": {
+      "Ref": "WorkerQueueE3D427EB",
+    },
+  },
+  "TopicArn": {
+    "Description": "SNS Topic ARN",
+    "Value": {
+      "Ref": "WorkerTopic7BD0C79A",
+    },
+  },
+}
+`;
+
+exports[`WorkerStack > Snapshot Tests > should match the resource count snapshot 1`] = `
+{
+  "AWS::IAM::Policy": 1,
+  "AWS::IAM::Role": 1,
+  "AWS::Lambda::EventSourceMapping": 1,
+  "AWS::Lambda::Function": 1,
+  "AWS::SNS::Subscription": 1,
+  "AWS::SNS::Topic": 1,
+  "AWS::SQS::Queue": 2,
+  "AWS::SQS::QueuePolicy": 1,
+}
+`;
