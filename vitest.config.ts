@@ -13,6 +13,7 @@ export default defineConfig({
         "cdk.out/",
         "lib/",
         "src/",
+        "scripts/",
         "**/*.d.ts",
         "**/*.config.*",
         "**/infra/app.ts",
