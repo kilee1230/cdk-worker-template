@@ -3,6 +3,6 @@
   "compilerOptions": {
     "noEmit": true
   },
-  "include": ["infra/**/*", "src/**/*", "test/**/*", "*.ts"],
+  "include": ["infra/**/*", "src/**/*", "test/**/*", "scripts/**/*", "*.ts"],
   "exclude": ["node_modules", "cdk.out", "coverage", "**/*.js", "lib"]
 }

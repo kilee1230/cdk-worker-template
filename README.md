@@ -145,14 +145,38 @@ The Lambda function (`src/lambda/worker/index.ts`) includes:
 - Moves messages to DLQ after 3 failed attempts
 - Comprehensive logging
 
-## Unit Testing
+## Testing
 
-This project uses **Vitest** for unit testing CDK constructs.
+### Lambda Local Testing
+
+Test your Lambda function locally without deploying to AWS:
+
+```bash
+# Quick interactive testing (recommended for development)
+npm run test:lambda
+
+# Run specific test scenario
+npm run test:lambda simple      # Simple message
+npm run test:lambda batch       # Batch processing
+npm run test:lambda failure     # Error handling
+```
+
+For detailed local testing options, see **[LOCAL_TESTING.md](./LOCAL_TESTING.md)**
+
+Available testing methods:
+
+- 🚀 **Interactive Script** - Fast, multiple scenarios, no external deps
+- ✅ **Vitest Unit Tests** - Automated testing with coverage
+- 🐳 **AWS SAM CLI** - Most realistic, runs in Docker
+
+### Unit Testing
+
+This project uses **Vitest** for unit testing CDK constructs and Lambda functions.
 
 ### Running Tests
 
 ```bash
-# Run all tests
+# Run all tests (CDK + Lambda)
 npm test
 
 # Run tests in watch mode (auto-rerun on file changes)
@@ -160,6 +184,9 @@ npm run test:watch
 
 # Run tests with coverage report
 npm run test:coverage
+
+# Run only Lambda function tests
+npm test lambda-worker
 ```
 
 ### Test Structure

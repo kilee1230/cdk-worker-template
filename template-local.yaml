@@ -1,0 +1,37 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Local testing template for Worker Lambda
+
+Globals:
+  Function:
+    Timeout: 30
+    MemorySize: 256
+    Runtime: nodejs20.x
+
+Resources:
+  WorkerFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: index.handler
+      # Point to the built Lambda code in cdk.out
+      # Note: You need to build CDK first (npm run synth)
+      CodeUri: cdk.out/asset.35409585ade444d9486ec4e51e6ffa15583c9d4bc7465ad8be7a4977cb2d01e0/
+      Description: Worker Lambda function for local testing
+      Environment:
+        Variables:
+          QUEUE_URL: https://sqs.us-east-1.amazonaws.com/123456789012/test-queue
+          TOPIC_ARN: arn:aws:sns:us-east-1:123456789012:test-topic
+          DLQ_URL: https://sqs.us-east-1.amazonaws.com/123456789012/test-dlq
+          ENVIRONMENT: local
+          LOG_LEVEL: debug
+      Events:
+        SQSEvent:
+          Type: SQS
+          Properties:
+            Queue: arn:aws:sqs:us-east-1:123456789012:test-queue
+            BatchSize: 10
+
+Outputs:
+  WorkerFunctionArn:
+    Description: Worker Lambda Function ARN
+    Value: !GetAtt WorkerFunction.Arn
