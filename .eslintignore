@@ -1,0 +1,11 @@
+*.js
+*.d.ts
+node_modules/
+cdk.out/
+coverage/
+.cdk.staging/
+dist/
+build/
+lib/
+src/
+
